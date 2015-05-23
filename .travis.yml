@@ -26,4 +26,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    repo: nodemcu/nodemcu-firmware
+    repo: jonn26/nodemcu-firmware
