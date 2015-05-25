@@ -26,6 +26,7 @@ deploy:
   file:
     - "$TRAVIS_BUILD_DIR/bin/${file_name_float}"
     - "$TRAVIS_BUILD_DIR/bin/${file_name_integer}"
+  skip_cleanup: true
   on:
     tags: true	
     repo: jonn26/nodemcu-firmware
