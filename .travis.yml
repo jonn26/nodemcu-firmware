@@ -18,11 +18,11 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: Swecz5lWvsuSbchSbVQ1rmCPN9nQIN5p/HlZNIEdEgAgnoLcJxRV4P8poVTB37jiA8Pck+8x2nWXpg74Rqik0i3KlPNvDfg5o4rIazWLNs4bc1Tbcpt44XAzFKKLYnDnWQUGcqjk7BcAXuNAF2X/fPBCVhFbHVg3Z7cDb32RsNw=
+    secure: hnVxvN+tUSI4LtLIXHoBuEPY66f+nOGHq7Fw3uXwu4qtKs89hFyxNTu/I9V/3dvlQ5vLOccNKvaesPGaBz+pYqVZZWjJ7NruV35CorNh1J8eFkrALHYPeTy1D2NL4gEuhe4pd72Jq0Iotuzky8ZFuW/w16hxPHPSRPYZc+Iv9SoaWZ49S1P4qL7BRf65215UlOQOt2aSkVWMNZ0Cvtlo5fURyGQGQF/eD7BBrl35mmDcl6voOcFMpnII+aFL6kiORbwdWJ0x1O53v0Pmm8DGP8fe6uVZbQstyaCaLghPJKg5e8BBrJ41lAKDjYAjK1LajsnYq4TtV7jVh9R0J/+IUe37AokFJyLm6geKCW//vYZHSPoCdnASwD59ADvnw+Ui3fmPh0jmqJTkcb3AyVRKv1CrXWnRQwxla1u46WuOaPeVdhpo/yBiOtifRXZbuBDxwpkCfAVgiXc6F2gkA6EhuYtaPU6urpL+d7VxH6loZSSn5OHokWpQ3/GSzkA+X14poTbY1WwyJwdLjepS5IMunyMOaiCW2E5XYqung/OK3gujfJ/ANJre92ccVmeHaAquiIom65Wu+11eh7AHHYreW1dxOKvEAzicaAEYfObNfucVNJcpeKbhkNabSzreL0BjMK4L2apRLFjpiCC+XQGp1p9+wQEb5FrvHowzEIZkc1k=
   file:
     - "$TRAVIS_BUILD_DIR/bin/${file_name_float}"
     - "$TRAVIS_BUILD_DIR/bin/${file_name_integer}"
   skip_cleanup: true
   on:
     tags: true
-    repo: nodemcu/nodemcu-firmware
+    repo: jonn26/nodemcu-firmware
