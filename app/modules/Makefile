@@ -42,12 +42,14 @@ INCLUDES += -I ../libc
 INCLUDES += -I ../coap
 INCLUDES += -I ../mqtt
 INCLUDES += -I ../u8glib
+INCLUDES += -I ../ucglib
 INCLUDES += -I ../lua
 INCLUDES += -I ../platform
 INCLUDES += -I ../wofs
 INCLUDES += -I ../spiffs
 INCLUDES += -I ../smart
 INCLUDES += -I ../cjson
+INCLUDES += -I ../dhtlib
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 

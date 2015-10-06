@@ -5,13 +5,13 @@
 */
 
 
-#include "c_stdlib.h"
-#include "c_math.h"
-
 #define lmathlib_c
 #define LUA_LIB
+#define LUAC_CROSS_FILE
 
 #include "lua.h"
+#include C_HEADER_STDLIB
+#include C_HEADER_MATH
 
 #include "lauxlib.h"
 #include "lualib.h"
@@ -35,7 +35,7 @@ static int math_abs (lua_State *L) {
 }
 
 #ifndef LUA_NUMBER_INTEGRAL
-
+#if 0
 static int math_sin (lua_State *L) {
   lua_pushnumber(L, sin(luaL_checknumber(L, 1)));
   return 1;
@@ -85,6 +85,7 @@ static int math_atan2 (lua_State *L) {
   lua_pushnumber(L, atan2(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
   return 1;
 }
+#endif
 
 static int math_ceil (lua_State *L) {
   lua_pushnumber(L, ceil(luaL_checknumber(L, 1)));
@@ -95,7 +96,7 @@ static int math_floor (lua_State *L) {
   lua_pushnumber(L, floor(luaL_checknumber(L, 1)));
   return 1;
 }
-
+#if 0
 static int math_fmod (lua_State *L) {
   lua_pushnumber(L, fmod(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
   return 1;
@@ -108,6 +109,7 @@ static int math_modf (lua_State *L) {
   lua_pushnumber(L, fp);
   return 2;
 }
+#endif
 
 #else  // #ifndef LUA_NUMBER_INTEGRAL
 
@@ -173,7 +175,7 @@ static int math_pow (lua_State *L) {
 
 
 #ifndef LUA_NUMBER_INTEGRAL
-
+#if 0
 static int math_log (lua_State *L) {
   lua_pushnumber(L, log(luaL_checknumber(L, 1)));
   return 1;
@@ -210,6 +212,7 @@ static int math_ldexp (lua_State *L) {
   lua_pushnumber(L, ldexp(luaL_checknumber(L, 1), luaL_checkint(L, 2)));
   return 1;
 }
+#endif
 
 #endif // #ifdef LUA_NUMBER_INTEGRAL
 
@@ -306,6 +309,8 @@ static int math_randomseed (lua_State *L) {
   return 0;
 }
 
+
+
 #define MIN_OPT_LEVEL 1
 #include "lrodefs.h"
 const LUA_REG_TYPE math_map[] = {
@@ -336,7 +341,7 @@ const LUA_REG_TYPE math_map[] = {
   {LSTRKEY("floor"), LFUNCVAL(math_floor)},
   // {LSTRKEY("fmod"),  LFUNCVAL(math_fmod)},
 #if LUA_OPTIMIZE_MEMORY > 0 && defined(LUA_COMPAT_MOD)
-  {LSTRKEY("mod"),   LFUNCVAL(math_fmod)}, 
+  // {LSTRKEY("mod"),   LFUNCVAL(math_fmod)}, 
 #endif
   // {LSTRKEY("frexp"), LFUNCVAL(math_frexp)},
   // {LSTRKEY("ldexp"), LFUNCVAL(math_ldexp)},

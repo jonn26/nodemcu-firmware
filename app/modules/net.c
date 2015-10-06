@@ -13,6 +13,7 @@
 #include "c_types.h"
 #include "mem.h"
 #include "espconn.h"
+#include "lwip/dns.h" 
 
 #ifdef CLIENT_SSL_ENABLE
 unsigned char *default_certificate;
@@ -224,7 +225,9 @@ static void net_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 */
 
   // "enhanced"
+
   lua_rawgeti(gL, LUA_REGISTRYINDEX, nud->cb_dns_found_ref);    // the callback function
+  lua_rawgeti(gL, LUA_REGISTRYINDEX, nud->self_ref);  // pass the userdata(conn) to callback func in lua
 
   if(ipaddr == NULL)
   {
@@ -242,7 +245,7 @@ static void net_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
   }
   // "enhanced" end
 
-  lua_call(gL, 1, 0);
+  lua_call(gL, 2, 0);
 
 end:
   if((pesp_conn->type == ESPCONN_TCP && pesp_conn->proto.tcp->remote_port == 0)
@@ -1368,6 +1371,55 @@ static int net_socket_dns( lua_State* L )
   return net_dns(L, mt);
 }
 
+static int net_multicastJoinLeave( lua_State *L, int join)
+{
+	  size_t il;
+	  ip_addr_t multicast_addr;
+	  ip_addr_t if_addr;
+	  const char *multicast_ip;
+	  const char *if_ip;
+
+	  NODE_DBG("net_multicastJoin is called.\n");
+	  if(! lua_isstring(L,1) ) return luaL_error( L, "wrong arg type" );
+	  if_ip = luaL_checklstring( L, 1, &il );
+	  if (if_ip != NULL)
+		 if ( if_ip[0] == '\0' || stricmp(if_ip,"any") == 0)
+	     {
+			 if_ip = "0.0.0.0";
+			 il = 7;
+	     }
+	  if (if_ip == NULL || il > 15 || il < 7) return luaL_error( L, "invalid if ip" );
+	  if_addr.addr = ipaddr_addr(if_ip);
+
+	  if(! lua_isstring(L,2) ) return luaL_error( L, "wrong arg type" );
+	  multicast_ip = luaL_checklstring( L, 2, &il );
+	  if (multicast_ip == NULL || il > 15 || il < 7) return luaL_error( L, "invalid multicast ip" );
+	  multicast_addr.addr = ipaddr_addr(multicast_ip);
+	  if (join)
+	  {
+		  espconn_igmp_join(&if_addr, &multicast_addr);
+	  }
+	  else
+	  {
+		  espconn_igmp_leave(&if_addr, &multicast_addr);
+	  }
+	  return 0;
+}
+// Lua: net.multicastJoin(ifip, multicastip)
+// if ifip "" or "any" all interfaces are affected
+static int net_multicastJoin( lua_State* L )
+{
+	return net_multicastJoinLeave(L,1);
+}
+
+// Lua: net.multicastLeave(ifip, multicastip)
+// if ifip "" or "any" all interfaces are affected
+static int net_multicastLeave( lua_State* L )
+{
+	return net_multicastJoinLeave(L,0);
+}
+
+
 // Lua: s = net.dns.setdnsserver(ip_addr, [index])
 static int net_setdnsserver( lua_State* L )
 {
@@ -1396,14 +1448,16 @@ static int net_getdnsserver( lua_State* L )
   if (numdns >= DNS_MAX_SERVERS)
     return luaL_error( L, "server index out of range [0-%d]", DNS_MAX_SERVERS - 1);
 
-  ip_addr_t ipaddr;
-  dns_getserver(numdns,&ipaddr);
+  // ip_addr_t ipaddr;
+  // dns_getserver(numdns,&ipaddr);
+  // Bug fix by @md5crypt https://github.com/nodemcu/nodemcu-firmware/pull/500
+  ip_addr_t ipaddr = dns_getserver(numdns);
 
   if ( ip_addr_isany(&ipaddr) ) {
     lua_pushnil( L );
   } else {
     char temp[20] = {0};
-    c_sprintf(temp, IPSTR, IP2STR( &ipaddr ) );
+    c_sprintf(temp, IPSTR, IP2STR( &ipaddr.addr ) );
     lua_pushstring( L, temp );
   }
 
@@ -1493,7 +1547,8 @@ const LUA_REG_TYPE net_map[] =
 {
   { LSTRKEY( "createServer" ), LFUNCVAL ( net_createServer ) },
   { LSTRKEY( "createConnection" ), LFUNCVAL ( net_createConnection ) },
-  
+  { LSTRKEY( "multicastJoin"), LFUNCVAL( net_multicastJoin ) },
+  { LSTRKEY( "multicastLeave"), LFUNCVAL( net_multicastLeave ) },
 #if LUA_OPTIMIZE_MEMORY > 0
   { LSTRKEY( "dns" ), LROVAL( net_dns_map ) },
   { LSTRKEY( "TCP" ), LNUMVAL( TCP ) },

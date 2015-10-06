@@ -41,9 +41,13 @@
 
 #define CLIENT_SSL_ENABLE
 #define GPIO_INTERRUPT_ENABLE
+//#define MD2_ENABLE
+#define SHA2_ENABLE
 
 // #define BUILD_WOFS		1
 #define BUILD_SPIFFS	1
+
+#define SPIFFS_CACHE 1
 
 // #define LUA_NUMBER_INTEGRAL
 
@@ -65,5 +69,9 @@
 #define LED_HIGH_COUNT_DEFAULT 10
 #define LED_LOW_COUNT_DEFAULT 0
 #endif
+
+#define ENDUSER_SETUP_AP_SSID "SetupGadget"
+
+#define STRBUF_DEFAULT_INCREMENT 32
 
 #endif	/* __USER_CONFIG_H__ */

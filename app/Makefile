@@ -21,23 +21,27 @@ ifndef PDIR # {
 GEN_IMAGES= eagle.app.v6.out
 GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
-SUBDIRS=    \
-	user	\
-	driver	\
-	lwip	\
-	json	\
-	upgrade	\
-	platform	\
-	libc 	\
-	lua 	\
-	coap	\
-	mqtt	\
-	u8glib  \
-	smart 	\
-	wofs 	\
-	modules	\
-	spiffs	\
-	cjson
+SUBDIRS= 					\
+	user 					\
+	driver 					\
+	lwip 					\
+	json 					\
+	upgrade 				\
+	platform 				\
+	libc 					\
+	lua 					\
+	coap 					\
+	mqtt 					\
+	u8glib 					\
+	ucglib					\
+	smart 					\
+	wofs 					\
+	modules 				\
+	spiffs 					\
+	cjson 					\
+	crypto 					\
+	dhtlib					\
+	tsl2561
 
 endif # } PDIR
 
@@ -46,18 +50,18 @@ LDDIR = ../ld
 
 CCFLAGS += -Os
 
-TARGET_LDFLAGS =		\
-	-nostdlib		\
-	-Wl,-EL \
-	--longcalls \
+TARGET_LDFLAGS = 				\
+	-nostdlib 				\
+	-Wl,-EL 				\
+	--longcalls 				\
 	--text-section-literals
 
 ifeq ($(FLAVOR),debug)
-    TARGET_LDFLAGS += -g -O2
+    TARGET_LDFLAGS += -g -Os
 endif
 
 ifeq ($(FLAVOR),release)
-    TARGET_LDFLAGS += -g -O0
+    TARGET_LDFLAGS += -Os
 endif
 
 LD_FILE = $(LDDIR)/eagle.app.v6.ld
@@ -70,51 +74,55 @@ ifeq ($(APP), 2)
 	LD_FILE = $(LDDIR)/eagle.app.v6.app2.ld
 endif
 
-COMPONENTS_eagle.app.v6 = \
-	user/libuser.a	\
-	driver/libdriver.a	\
-	lwip/liblwip.a	\
-	json/libjson.a	\
-	upgrade/libupgrade.a	\
-	platform/libplatform.a	\
-	libc/liblibc.a 	\
-	lua/liblua.a 	\
-	coap/coap.a 	\
-	mqtt/mqtt.a 	\
-	u8glib/u8glib.a \
-	smart/smart.a 	\
-	wofs/wofs.a 	\
-	spiffs/spiffs.a 	\
-	cjson/libcjson.a 	\
-	modules/libmodules.a
+COMPONENTS_eagle.app.v6 = 			\
+	user/libuser.a 				\
+	driver/libdriver.a 			\
+	lwip/liblwip.a 				\
+	json/libjson.a 				\
+	upgrade/libupgrade.a 			\
+	platform/libplatform.a 			\
+	libc/liblibc.a 				\
+	lua/liblua.a 				\
+	coap/coap.a 				\
+	mqtt/mqtt.a 				\
+	u8glib/u8glib.a 			\
+	ucglib/ucglib.a 			\
+	smart/smart.a 				\
+	wofs/wofs.a 				\
+	spiffs/spiffs.a 			\
+	cjson/libcjson.a 			\
+	crypto/libcrypto.a 			\
+	dhtlib/libdhtlib.a 			\
+	tsl2561/tsl2561lib.a		\
+	modules/libmodules.a		
 
-LINKFLAGS_eagle.app.v6 = \
-	-L../lib        \
-	-Wl,--gc-sections \
-	-Xlinker -Map=mapfile \
-	-nostdlib	\
-    -T$(LD_FILE)   \
-	-Wl,--no-check-sections	\
-    -u call_user_start	\
-	-Wl,-static						\
-	-Wl,--start-group					\
-	-lc					\
-	-lgcc					\
-	-lhal					\
-	-lphy	\
-	-lpp	\
-	-lnet80211	\
-	-lwpa	\
-	-lmain	\
-	-ljson	\
-	-lsmartconfig	\
-	-lssl	\
-	$(DEP_LIBS_eagle.app.v6)					\
-	-Wl,--end-group			\
+LINKFLAGS_eagle.app.v6 = 			\
+	-L../lib 				\
+	-Wl,--gc-sections 			\
+	-Xlinker -Map=mapfile 			\
+	-nostdlib 				\
+    -T$(LD_FILE) 				\
+	-Wl,--no-check-sections 		\
+	-Wl,--wrap=_xtos_set_exception_handler \
+	-Wl,-static 				\
+	-Wl,--start-group 			\
+	-lc 					\
+	-lgcc 					\
+	-lhal 					\
+	-lphy 					\
+	-lpp 					\
+	-lnet80211 				\
+	-lwpa 					\
+	-lmain 					\
+	-ljson 					\
+	-lsmartconfig 				\
+	-lssl 					\
+	$(DEP_LIBS_eagle.app.v6) 		\
+	-Wl,--end-group 			\
 	-lm
 
-DEPENDS_eagle.app.v6 = \
-                $(LD_FILE) \
+DEPENDS_eagle.app.v6 = 				\
+                $(LD_FILE) 			\
                 $(LDDIR)/eagle.rom.addr.v6.ld
 
 #############################################################
@@ -125,24 +133,24 @@ DEPENDS_eagle.app.v6 = \
 #   for a subtree within the makefile rooted therein
 #
 
-#UNIVERSAL_TARGET_DEFINES =		\
+#UNIVERSAL_TARGET_DEFINES = 			\
 
 # Other potential configuration flags include:
 #	-DTXRX_TXBUF_DEBUG
 #	-DTXRX_RXBUF_DEBUG
 #	-DWLAN_CONFIG_CCX
-CONFIGURATION_DEFINES =	-D__ets__ \
-			-DICACHE_FLASH	\
-			-DLWIP_OPEN_SRC	\
-			-DPBUF_RSV_FOR_WLAN	\
+CONFIGURATION_DEFINES =	-D__ets__ 		\
+			-DICACHE_FLASH 		\
+			-DLWIP_OPEN_SRC 	\
+			-DPBUF_RSV_FOR_WLAN 	\
 			-DEBUF_LWIP
 
-DEFINES +=				\
-	$(UNIVERSAL_TARGET_DEFINES)	\
+DEFINES += 					\
+	$(UNIVERSAL_TARGET_DEFINES) 		\
 	$(CONFIGURATION_DEFINES)
 
-DDEFINES +=				\
-	$(UNIVERSAL_TARGET_DEFINES)	\
+DDEFINES += 					\
+	$(UNIVERSAL_TARGET_DEFINES) 		\
 	$(CONFIGURATION_DEFINES)
 
 

@@ -36,43 +36,40 @@ Tencent QQ group: 309957875<br />
 - cross compiler (done)
 
 # Change log
+2015-06-27<br />
+fixed ap/station-ap cannot connect to the device.<br />
+added wifi.ap.getconfig().<br />
+fixed net.dns.getdnsserver().<br />
+added new base64 lua example.<br />
+added node.bootreason() to inspect boot cause.<br />
+optimization of u8g.<br />
+
+# Change log
+2015-06-25<br />
+move constants to ROM. Frees up 16k+ of RAM.<br />
+add dhtlib for DHT11/21/22/33/44, port from Arduino.<br />
+add 433MHz transmission.<br />
+add crypto library.<br />
+re-add ws2812.write().<br />
+add wifi.getchannel.<br />
+changed wifi_setip() to allow setting SoftAP gateway to 0.0.0.0.<br />
+added net.dns.setdnsserver and net.dns.getdnsserver.<br />
+add support for lm92 temperature sensor.<br />
+implement getStrWidth() and setFontLineSpacingFactor().<br />
+add -Os flag to release and debug builds.<br />
+changed output format of table that is output by wifi_scan_done.<br />
+added ability to set scan configuration to wifi.sta.getap.<br />
+added function wifi.sta.getconfig().<br />
+allow connecting to unsecured WiFi networks.<br />
+add setphymode and getphymode to wifi module.<br />
+add multicastJoin and multicastLeave to net module.<br />
+add Yeelink Modules.<br />
+
 2015-03-31<br />
 polish mqtt module, add queue for mqtt module.<br />
 add reconnect option to mqtt.connect api, :connect( host, port, secure, auto_reconnect, function(client) )<br />
 move node.readvdd33 to adc.readvdd33.<br />
 tools/esptool.py supported NodeMCU devkit automatic flash.
-
-2015-03-18<br />
-update u8glib.<br />
-merge everything to master.
-
-2015-03-17<br />
-add cjson module, only cjson.encode() and cjson.decode() is implemented.<br />
-read doc [here](https://github.com/nodemcu/nodemcu-firmware/blob/master/app/cjson/manual.txt)
-
-2015-03-15<br />
-bugs fixed: #239, #273.<br />
-reduce coap module memory usage, add coap module to default built.
-
-2015-03-11<br />
-fix bugs of spiffs.<br />
-build both float and integer version [latest releases](https://github.com/nodemcu/nodemcu-firmware/releases/latest).<br />
-fix tmr.time().<br />
-fix memory leak when DNS fail.
-
-2015-03-10<br />
-update to the recent spiffs.<br />
-add file.fsinfo() api, usage: remain, used, total = file.fsinfo().<br />
-add Travis CI. please download the latest firmware from [releases](https://github.com/nodemcu/nodemcu-firmware/releases).<br />
-add math lib, partial api work.<br />
-u8g module, ws2812 module default enabled in dev-branch build.
-
-2015-02-13<br />
-add node.compile() api to compile lua text file into lua bytecode file.<br />
-this will reduce memory usage noticeably when require modules into NodeMCU.<br />
-raise internal LUA_BUFFERSIZE from 1024 to 4096.<br />
-lua require("mod") will load "mod.lc" file first if exist.<br />
-build latest pre_build bin.
 
 [more change log](https://github.com/nodemcu/nodemcu-firmware/wiki)<br />
 
@@ -84,13 +81,13 @@ build latest pre_build bin.
     <th scope="col">IO index</th><th scope="col">ESP8266 pin</th><th scope="col">IO index</th><th scope="col">ESP8266 pin</th>
   </tr>
   <tr>
-    <td>0 [*]</td><td>GPIO16</td><td>8</td><td>GPIO15</td>
+    <td>0 [*]</td><td>GPIO16</td><td>8</td><td>GPIO15 (SPI CS)</td>
   </tr>
   <tr>
-    <td>1</td><td>GPIO5</td><td>9</td><td>GPIO3</td>
+    <td>1</td><td>GPIO5</td><td>9</td><td>GPIO3 (UART RX)</td>
    </tr>
    <tr>
-    <td>2</td><td>GPIO4</td><td>10</td><td>GPIO1</td>
+    <td>2</td><td>GPIO4</td><td>10</td><td>GPIO1 (UART TX)</td>
   </tr>
   <tr>
     <td>3</td><td>GPIO0</td><td>11</td><td>GPIO9</td>
@@ -99,13 +96,13 @@ build latest pre_build bin.
     <td>4</td><td>GPIO2</td><td>12</td><td>GPIO10</td>
   </tr>
   <tr>
-    <td>5</td><td>GPIO14</td><td></td><td></td>
+    <td>5</td><td>GPIO14 (SPI CLK)</td><td></td><td></td>
    </tr>
    <tr>
-    <td>6</td><td>GPIO12</td><td></td><td></td>
+    <td>6</td><td>GPIO12 (SPI MISO)</td><td></td><td></td>
   </tr>
   <tr>
-    <td>7</td><td>GPIO13</td><td></td><td></td>
+    <td>7</td><td>GPIO13 (SPI MOSI)</td><td></td><td></td>
    </tr>
 </table>
 #### [*] D0(GPIO16) can only be used as gpio read/write. no interrupt supported. no pwm/i2c/ow supported.
@@ -145,6 +142,11 @@ build latest pre_build bin.
 #define LUA_USE_MODULES_CJSON
 #endif /* LUA_USE_MODULES */
 ```
+#Online firmware custom build
+
+For many application, some modules are not used, remove them can free many memory.<br />
+
+Please try Marcel's [NodeMCU custom builds](http://frightanic.com/nodemcu-custom-build) cloud service and you can get your own firmware.<br />
 
 #Flash the firmware
 nodemcu_latest.bin: 0x00000<br />
@@ -159,6 +161,13 @@ Or, if you build your own bin from source code.<br />
 
 #Connect the hardware in serial
 baudrate:9600
+
+#Write Lua script to filesystem
+####Esplorer
+Victor Brutskiy's [Esplorer](https://github.com/4refr0nt/ESPlorer) support most platforms such as Linux, Windows, Mac OS, etc. This software is opensource and can write lua/lc files to filesystem.
+
+####NodeMCU Studio
+[NodeMCU Studio](https://github.com/nodemcu/nodemcu-studio-csharp) is written in C# and support Windows. This software is opensource and can write lua files to filesystem.
 
 #Start play
 
@@ -350,14 +359,33 @@ cu:send("hello")
     package.loaded["ds18b20"]=nil
 ```
 
-####Operate a display via I2c with u8glib
-u8glib is a graphics library with support for many different displays.
-The integration in nodemcu is developed for SSD1306 based display attached via the I2C port. Further display types and SPI connectivity will be added in the future.
+####Operate a display with u8glib
+u8glib is a graphics library with support for many different displays. The nodemcu firmware supports a subset of these.
+Both I2C and SPI:
+* sh1106_128x64
+* ssd1306 - 128x64 and 64x48 variants
+* ssd1309_128x64
+* ssd1327_96x96_gr
+* uc1611 - dogm240 and dogxl240 variants
 
-U8glib v1.17
+SPI only:
+* ld7032_60x32
+* pcd8544_84x48
+* pcf8812_96x65
+* ssd1322_nhd31oled - bw and gr variants
+* ssd1325_nhd27oled - bw and gr variants
+* ssd1351_128x128 - gh and hicolor variants
+* st7565_64128n - variants 64128n, dogm128/132, lm6059/lm6063, c12832/c12864
+* uc1601_c128032
+* uc1608 - 240x128 and 240x64 variants
+* uc1610_dogxl160 - bw and gr variants
+* uc1611 - dogm240 and dogxl240 variants
+* uc1701 - dogs102 and mini12864 variants
+
+U8glib v1.18.1
 
 #####I2C connection
-Hook up SDA and SCL to any free GPIOs. Eg. `lua_examples/u8glib/graphics_test.lua` expects SDA=5 (GPIO14) and SCL=6 (GPIO12). They are used to set up nodemcu's I2C driver before accessing the display:
+Hook up SDA and SCL to any free GPIOs. Eg. [u8g_graphics_test.lua](lua_examples/u8glib/u8g_graphics_test.lua) expects SDA=5 (GPIO14) and SCL=6 (GPIO12). They are used to set up nodemcu's I2C driver before accessing the display:
 ```lua
 sda = 5
 scl = 6
@@ -375,7 +403,7 @@ All other pins can be assigned to any available GPIO:
 * D/C
 * RES (optional for some displays)
 
-Also refer to the initialization sequence eg in `lua_examples/u8glib/graphics_test.lua`:
+Also refer to the initialization sequence eg in [u8g_graphics_test.lua](lua_examples/u8glib/u8g_graphics_test.lua):
 ```lua
 spi.setup(1, spi.MASTER, spi.CPOL_LOW, spi.CPHA_LOW, spi.DATABITS_8, 0)
 ```
@@ -394,14 +422,28 @@ SSD1306 via SPI:
 cs  = 8 -- GPIO15, pull-down 10k to GND
 dc  = 4 -- GPIO2
 res = 0 -- GPIO16, RES is optional YMMV
-disp = u8g.ssd1306_128x64_spi(cs, dc, res)
+disp = u8g.ssd1306_128x64_hw_spi(cs, dc, res)
 ```
 
 This object provides all of u8glib's methods to control the display.
-Again, refer to `lua_examples/u8glib/graphics_test.lua` to get an impression how this is achieved with Lua code. Visit the [u8glib homepage](https://code.google.com/p/u8glib/) for technical details.
+Again, refer to [u8g_graphics_test.lua](lua_examples/u8glib/u8g_graphics_test.lua) to get an impression how this is achieved with Lua code. Visit the [u8glib homepage](https://github.com/olikraus/u8glib) for technical details.
+
+#####Displays
+I2C and HW SPI based displays with support in u8glib can be enabled. To get access to the respective constructors, add the desired entries to the I2C or SPI display tables in [app/include/u8g_config.h](app/include/u8g_config.h):
+```c
+#define U8G_DISPLAY_TABLE_I2C                   \
+    U8G_DISPLAY_TABLE_ENTRY(ssd1306_128x64_i2c) \
+
+#define U8G_DISPLAY_TABLE_SPI                      \
+    U8G_DISPLAY_TABLE_ENTRY(ssd1306_128x64_hw_spi) \
+    U8G_DISPLAY_TABLE_ENTRY(pcd8544_84x48_hw_spi)  \
+    U8G_DISPLAY_TABLE_ENTRY(pcf8812_96x65_hw_spi)  \
+```
+An exhaustive list of available displays can be found in the [u8g module wiki entry](https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en#u8g-module).
+
 
 #####Fonts
-u8glib comes with a wide range of fonts for small displays. Since they need to be compiled into the firmware image, you'd need to include them in `app/include/u8g_config.h` and recompile. Simply add the desired fonts to the font table:
+u8glib comes with a wide range of fonts for small displays. Since they need to be compiled into the firmware image, you'd need to include them in [app/include/u8g_config.h](app/include/u8g_config.h) and recompile. Simply add the desired fonts to the font table:
 ```c
 #define U8G_FONT_TABLE \
     U8G_FONT_TABLE_ENTRY(font_6x10)  \
@@ -410,7 +452,7 @@ u8glib comes with a wide range of fonts for small displays. Since they need to b
 They'll be available as `u8g.<font_name>` in Lua.
 
 #####Bitmaps
-Bitmaps and XBMs are supplied as strings to `drawBitmap()` and `drawXBM()`. This off-loads all data handling from the u8g module to generic methods for binary files. See `lua_examples/u8glib/u8g_bitmaps.lua`.
+Bitmaps and XBMs are supplied as strings to `drawBitmap()` and `drawXBM()`. This off-loads all data handling from the u8g module to generic methods for binary files. See [u8g_bitmaps.lua](lua_examples/u8glib/u8g_bitmaps.lua).
 In contrast to the source code based inclusion of XBMs into u8glib, it's required to provide precompiled binary files. This can be performed online with [Online-Utility's Image Converter](http://www.online-utility.org/image_converter.jsp): Convert from XBM to MONO format and upload the binary result with [nodemcu-uploader.py](https://github.com/kmpm/nodemcu-uploader).
 
 #####Unimplemented functions
@@ -427,6 +469,61 @@ In contrast to the source code based inclusion of XBMs into u8glib, it's require
   - [ ] setHardwareBackup()
   - [ ] setRGB()
   - [ ] setDefaultMidColor()
+
+####Operate a display with ucglib
+Ucglib is a graphics library with support for color TFT displays.
+
+Ucglib v1.3.3
+
+#####SPI connection
+The HSPI module is used, so certain pins are fixed:
+* HSPI CLK  = GPIO14
+* HSPI MOSI = GPIO13
+* HSPI MISO = GPIO12 (not used)
+
+All other pins can be assigned to any available GPIO:
+* CS
+* D/C
+* RES (optional for some displays)
+
+Also refer to the initialization sequence eg in [GraphicsTest.lua](lua_examples/ucglib/GraphicsRest.lua):
+```lua
+spi.setup(1, spi.MASTER, spi.CPOL_LOW, spi.CPHA_LOW, spi.DATABITS_8, 0)
+```
+
+#####Library usage
+The Lua bindings for this library closely follow ucglib's object oriented C++ API. Based on the ucg class, you create an object for your display type.
+
+ILI9341 via SPI:
+```lua
+cs  = 8 -- GPIO15, pull-down 10k to GND
+dc  = 4 -- GPIO2
+res = 0 -- GPIO16, RES is optional YMMV
+disp = ucg.ili9341_18x240x320_hw_spi(cs, dc, res)
+```
+
+This object provides all of ucglib's methods to control the display.
+Again, refer to [GraphicsTest.lua](lua_examples/ucglib/GraphicsTest.lua) to get an impression how this is achieved with Lua code. Visit the [ucglib homepage](https://github.com/olikraus/ucglib) for technical details.
+
+#####Displays
+To get access to the display constructors, add the desired entries to the display table in [app/include/ucg_config.h](app/include/ucg_config.h):
+```c
+#define UCG_DISPLAY_TABLE                          \
+    UCG_DISPLAY_TABLE_ENTRY(ili9341_18x240x320_hw_spi, ucg_dev_ili9341_18x240x320, ucg_ext_ili9341_18) \
+    UCG_DISPLAY_TABLE_ENTRY(st7735_18x128x160_hw_spi, ucg_dev_st7735_18x128x160, ucg_ext_st7735_18) \
+```
+
+#####Fonts
+ucglib comes with a wide range of fonts for small displays. Since they need to be compiled into the firmware image, you'd need to include them in [app/include/ucg_config.h](app/include/ucg_config.h) and recompile. Simply add the desired fonts to the font table:
+```c
+#define UCG_FONT_TABLE                              \
+    UCG_FONT_TABLE_ENTRY(font_7x13B_tr)             \
+    UCG_FONT_TABLE_ENTRY(font_helvB12_hr)           \
+    UCG_FONT_TABLE_ENTRY(font_helvB18_hr)           \
+    UCG_FONT_TABLE_ENTRY(font_ncenR12_tr)           \
+    UCG_FONT_TABLE_ENTRY(font_ncenR14_hr)
+```
+They'll be available as `ucg.<font_name>` in Lua.
 
 
 ####Control a WS2812 based light strip
@@ -462,8 +559,10 @@ cc:post(coap.NON, "coap://192.168.18.100:5683/", "Hello")
 ```
 
 ####cjson
-
 ```lua
+-- Note that when cjson deal with large content, it may fails a memory allocation, and leaks a bit of memory.
+-- so it's better to detect that and schedule a restart. 
+--
 -- Translate Lua value to/from JSON
 -- text = cjson.encode(value)
 -- value = cjson.decode(text)
