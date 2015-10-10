@@ -1056,7 +1056,7 @@ static int wifi_ap_getconfig( lua_State* L )
   struct softap_config config;
   wifi_softap_get_config(&config);
   lua_pushstring( L, config.ssid );
-  if(config.authmode = AUTH_OPEN)
+  if(config.authmode == AUTH_OPEN)
     lua_pushnil(L);
   else
     lua_pushstring( L, config.password );
@@ -1278,7 +1278,6 @@ static const LUA_REG_TYPE wifi_station_map[] =
   { LSTRKEY( "connect" ), LFUNCVAL ( wifi_station_connect4lua ) },
   { LSTRKEY( "disconnect" ), LFUNCVAL ( wifi_station_disconnect4lua ) },
   { LSTRKEY( "autoconnect" ), LFUNCVAL ( wifi_station_setauto ) },
-  { LSTRKEY( "getconfig" ), LFUNCVAL( wifi_ap_getconfig ) },
   { LSTRKEY( "getip" ), LFUNCVAL ( wifi_station_getip ) },
   { LSTRKEY( "setip" ), LFUNCVAL ( wifi_station_setip ) },
   { LSTRKEY( "getbroadcast" ), LFUNCVAL ( wifi_station_getbroadcast) },
@@ -1309,6 +1308,7 @@ static const LUA_REG_TYPE wifi_ap_map[] =
   { LSTRKEY( "getmac" ), LFUNCVAL ( wifi_ap_getmac ) },
   { LSTRKEY( "setmac" ), LFUNCVAL ( wifi_ap_setmac ) },
   { LSTRKEY( "getclient" ), LFUNCVAL ( wifi_ap_listclient ) },
+  { LSTRKEY( "getconfig" ), LFUNCVAL( wifi_ap_getconfig ) },
 #if LUA_OPTIMIZE_MEMORY > 0
   { LSTRKEY( "dhcp" ), LROVAL( wifi_ap_dhcp_map ) },
 
